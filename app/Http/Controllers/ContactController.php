@@ -3,16 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Repositories\CompanyRepository;
 use Illuminate\Http\Request;
 
 class ContactController extends Controller
 {
-    public function index() {
-        $companies = [
-            1 => ['name' => 'Company One', 'contacts' => 3],
-            2 => ['name' => 'Company Two', 'contacts' => 5],
-        ];
-    
+    public function __construct(protected CompanyRepository $company) {
+
+    }
+
+    public function index(CompanyRepository $company, Request $request) {
+        //dd($request->sort_by);
+        // $companies = [
+        //     1 => ['name' => 'Company One', 'contacts' => 3],
+        //     2 => ['name' => 'Company Two', 'contacts' => 5],
+        // ];
+        $companies = $company->pluck();
         $contacts = $this->getContacts();
     
         return view('contacts.index', compact('contacts', 'companies'));
@@ -22,7 +28,7 @@ class ContactController extends Controller
         return view('contacts.create');
     }
 
-    public function show($id) {
+    public function show(Request $request, $id) {
         $contacts = $this->getContacts();
         abort_unless(isset($contacts[$id]), 404);
         //Tem o abort_if(!) que faz a mesma coisa...; Se não houver o Id para este contato, retorna uma página 404.

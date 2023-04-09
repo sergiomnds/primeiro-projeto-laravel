@@ -1,6 +1,12 @@
 <?php
 
+use App\Http\Controllers\ActivityController;
+use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\ContactNoteController;
+use App\Http\Controllers\TagController;
+use App\Http\Controllers\TaskController;
+use App\Http\Controllers\WelcomeController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,12 +19,10 @@ use Illuminate\Support\Facades\Route;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
-Route::get('/', function () {
-    return view('welcome');
-});
+Route::get('/', WelcomeController::class);
 
 //Agrupando as Rotas pelo Controller em comum, faz fica mais limpo o código.
-Route::controller(ContactController::class)->group(function () {
+Route::controller(ContactController::class)->name('contacts.')->group(function () {
     Route::get('/contacts', 'index')->name('index');
 
     Route::get('/contacts/create', 'create')->name('create');
@@ -27,6 +31,30 @@ Route::controller(ContactController::class)->group(function () {
     Route::get('/contacts/{id}', 'show')->name('show')->whereNumber('id');
     //Para aceitar apenas números -> where('i d', '[0-9]+');
 });
+
+Route::resource('/companies', CompanyController::class);
+Route::resources([
+    '/tags' => TagController::class,
+    '/tasks' => TaskController::class
+]);
+
+//Partial Resource Routes, você escolhe quais quer criar a rota invés de todas como é o padrão. Tem o only() e o except()
+// Route::resource('/activities', ActivityController::class)->except([
+//     'index', 'show'
+// ]);
+
+//* Se quiser customizar os nomes e as rotas.
+// Route::resource('/activities', ActivityController::class)->names([
+//     'index' => 'activities.all',
+//     'show' => 'activities.view'
+// ]);
+
+Route::resource('/activities', ActivityController::class)->parameters([
+    'activities' => 'active'
+]);
+
+//Nested Resource, trabalhar apenas com as rotas necessárias
+Route::resource('/contacts.notes', ContactNoteController::class)->shallow();
 
 Route::fallback(function() {
     return "<h1>Sorry, the page does not exists</h1>";
