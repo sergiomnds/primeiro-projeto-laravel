@@ -21,16 +21,17 @@ use Illuminate\Support\Facades\Route;
 */
 Route::get('/', WelcomeController::class);
 
+Route::resource('/contacts', ContactController::class);
 //Agrupando as Rotas pelo Controller em comum, faz fica mais limpo o código.
-Route::controller(ContactController::class)->name('contacts.')->group(function () {
-    Route::get('/contacts', 'index')->name('index');
-    Route::post('/contacts', 'store')->name('store');
-    Route::get('/contacts/create', 'create')->name('create');
-
-    //O id é um parâmetro passado na URL, que pode ser acessado dentro da função. Muda para os diferentes contatos.
-    Route::get('/contacts/{id}', 'show')->name('show')->whereNumber('id');
-    //Para aceitar apenas números -> where('i d', '[0-9]+');
-});
+// Route::controller(ContactController::class)->name('contacts.')->group(function () {
+//     Route::get('/contacts', 'index')->name('index');
+//     Route::post('/contacts', 'store')->name('store');
+//     Route::get('/contacts/create', 'create')->name('create');
+//     Route::get('/contacts/{id}', 'show')->name('show');
+//     Route::get('/contacts/{id}/edit', 'edit')->name('edit');
+//     Route::put('/contacts/{id}', 'update')->name('update');
+//     Route::delete('/contacts/{id}', 'destroy')->name('destroy');
+// });
 
 Route::resource('/companies', CompanyController::class);
 Route::resources([
@@ -55,17 +56,6 @@ Route::resource('/activities', ActivityController::class)->parameters([
 
 //Nested Resource, trabalhar apenas com as rotas necessárias
 Route::resource('/contacts.notes', ContactNoteController::class)->shallow();
-
-Route::fallback(function() {
-    return "<h1>Sorry, the page does not exists</h1>";
-});
-
-/*
-As routes podem ser colocadas em grupos, usando o prefix(), que também pode ter um nome.
-Route::prefix('admin')->name('admin.')->group(function () {
-
-});
-*/
 
 /*
 O name é um parâmetro opcional, indicado pelo ?, tem que ter um valor default.
