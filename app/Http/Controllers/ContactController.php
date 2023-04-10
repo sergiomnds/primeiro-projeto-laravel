@@ -48,8 +48,11 @@ class ContactController extends Controller
             'company_id' => 'required|exists:companies,id'
         ]);
 
+        $contact = Contact::create($request->all());
+        return redirect()->route('contacts.index')->with('message', 'Contact has been added successfully');
+
         //dd(request()->is("contacts")); TRUE
-        dd($request->all());
+        //dd($request->all());
     }
 
     public function show($id) {
