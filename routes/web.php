@@ -24,7 +24,7 @@ Route::get('/', WelcomeController::class);
 //Agrupando as Rotas pelo Controller em comum, faz fica mais limpo o código.
 Route::controller(ContactController::class)->name('contacts.')->group(function () {
     Route::get('/contacts', 'index')->name('index');
-
+    Route::post('/contacts', 'store')->name('store');
     Route::get('/contacts/create', 'create')->name('create');
 
     //O id é um parâmetro passado na URL, que pode ser acessado dentro da função. Muda para os diferentes contatos.

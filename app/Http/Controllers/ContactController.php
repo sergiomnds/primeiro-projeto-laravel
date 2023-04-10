@@ -6,7 +6,6 @@ use App\Models\Contact;
 use App\Http\Controllers\Controller;
 use App\Repositories\CompanyRepository;
 use Illuminate\Http\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
 
 class ContactController extends Controller
 {
@@ -21,22 +20,36 @@ class ContactController extends Controller
         //     2 => ['name' => 'Company Two', 'contacts' => 5],
         // ];
         $companies = $this->company->pluck();
-        //$contacts = Contact::latest()->paginate(10);
-        $contactsCollection = Contact::latest()->get();
-        $perPage = 10;
-        $currentPage = request()->query('page', 1);
-        $items = $contactsCollection->slice(($currentPage * $perPage) - $perPage, $perPage)->values();
-        $total = $contactsCollection->count();
-        $contacts = new LengthAwarePaginator($items, $total, $perPage, $currentPage, [
-            'path' => request()->url(),
-            'query' => request()->query()
-        ]);
+        $contacts = Contact::latest()->where(function ($query) {
+            if ($companyId = request()->query("company_id")) {
+                $query->where("company_id", $companyId);
+            }
+        })->paginate(10);
 
         return view('contacts.index', compact('contacts', 'companies'));
     }
 
     public function create() {
-        return view('contacts.create');
+        //dd(request()->is("contacts")); FALSE
+        //dd(request()->fullUrl()); method()
+
+        $companies = $this->company->pluck();
+        return view('contacts.create', compact('companies'));
+    }
+
+    public function store(Request $request)
+    {   
+        $request->validate([
+            'first_name' => 'required|string|max:50',
+            'last_name' => 'required|string|max:50',
+            'email' => 'required|email',
+            'phone' => 'nullable',
+            'address' => 'nullable',
+            'company_id' => 'required|exists:companies,id'
+        ]);
+
+        //dd(request()->is("contacts")); TRUE
+        dd($request->all());
     }
 
     public function show($id) {
@@ -46,5 +59,5 @@ class ContactController extends Controller
 
         //abort_if(empty($contact), 404);
         //Tem o abort_if(!) que faz a mesma coisa...; Se não houver o Id para este contato, retorna uma página 404.
-    }
+    } 
 }
